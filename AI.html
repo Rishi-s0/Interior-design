@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR Furniture Placement</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            padding: 0;  /* Changed from 20px to 0 for full-width header */
+        }
+
+        /* Add new header styles */
+        .header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left {
+            text-align: left;
+        }
+
+        .header-left p {
+            font-size: 1.2em;
+            color: #ecf0f1;
+            font-weight: 300;
+            margin-top: 5px;
+        }
+
+        .header-right {
+            text-align: right;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 5px;
+        }
+
+        .header h2 {
+            font-size: 1.8em;
+            color: #ecf0f1;
+            font-weight: 400;
+        }
+
+        /* Add padding to main content */
+        .main-content {
+            padding: 20px;
+        }
+
+        .container {
+            display: flex;
+            gap: 20px;
+        }
+
+        .products-panel {
+            width: 300px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .room-view {
+            flex: 1;
+            position: relative;
+            min-height: 500px;
+            border: 2px dashed #ccc;
+            border-radius: 5px;
+        }
+
+        .room-view img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .product-item {
+            width: 100px;
+            height: auto;  /* Changed from fixed height */
+            margin: 10px;
+            cursor: move;
+            border: 1px solid #999;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .product-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .product-label {
+            font-size: 12px;
+            margin-top: 5px;
+            color: #333;
+            padding: 0 5px;
+        }
+
+        .draggable-product {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            cursor: move;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+        }
+
+        .draggable-product img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .upload-section {
+            margin-bottom: 20px;
+            text-align: center;  /* Center the content */
+            padding: 20px 0;     /* Add some vertical padding */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;          /* Space between input and button */
+        }
+
+        .upload-section input[type="file"] {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: white;
+        }
+
+        .upload-section button {
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+
+        .upload-section button:hover {
+            background-color: #45a049;
+        }
+
+        .category-button {
+            width: 100%;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            text-align: left;
+            cursor: pointer;
+            margin: 5px 0;
+        }
+
+        .category-content {
+            display: none;
+            padding: 10px;
+            background-color: #fff;
+        }
+
+        .category-content.active {
+            display: block;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        /* Controls Panel Styles */
+        .controls-panel {
+            width: 300px;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-top: 0;
+            background-color: #f9f9f9;
+            position: static;
+            left: auto;
+            bottom: auto;
+        }
+
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .delete-button, .download-button {
+            grid-column: span 3;
+        }
+
+        .control-button {
+            padding: 8px;
+            background-color: #2c3e50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.3s;
+        }
+
+        .control-button:hover {
+            background-color: #34495e;
+        }
+
+        /* Add these styles to modify the button colors */
+        .delete-button {
+            background-color: #e74c3c !important; /* Red color */
+        }
+
+        .delete-button:hover {
+            background-color: #c0392b !important; /* Darker red on hover */
+        }
+
+        .download-button {
+            background-color: #2ecc71 !important; /* Green color */
+        }
+
+        .download-button:hover {
+            background-color: #27ae60 !important; /* Darker green on hover */
+        }
+
+        .control-button i {
+            margin-right: 8px;  /* Space between icon and text */
+        }
+    </style>
+</head>
+<body>
+    <!-- Update header structure -->
+    <div class="header">
+        <div class="header-left">
+            <h1>Interior</h1>
+            <p>Design Your Space with Elegance</p>
+        </div>
+        <div class="header-right">
+            <h2>AR Room Designer</h2>
+        </div>
+    </div>
+
+    <!-- Wrap existing content in main-content div -->
+    <div class="main-content">
+        <div class="upload-section">
+            <input type="file" id="room-upload" accept="image/*">
+            <button onclick="uploadRoom()">Upload Room Image</button>
+        </div>
+
+        <div class="container">
+            <div class="products-panel">
+                <h3>Furniture Items</h3>
+                
+                <button class="category-button" onclick="toggleCategory('sofas')">Sofas ▼</button>
+                <div id="sofas" class="category-content">
+                    <div class="product-grid">
+                        <div class="product-item" draggable="true">
+                            <img src="./images/s1.png" alt="Sofa 1">
+                            <div class="product-label">Modern Sofa</div>
+                        </div>
+                        <div class="product-item" draggable="true">
+                            <img src="./images/s2.jpg" alt="Sofa 2">
+                            <div class="product-label">Leather Couch</div>
+                        </div>
+                        <div class="product-item" draggable="true">
+                            <img src="./images/s3.jpg" alt="Sofa 3">
+                            <div class="product-label">Sectional Sofa</div>
+                        </div>
+                        <div class="product-item" draggable="true">
+                            <img src="./images/s4.jpg" alt="Sofa 4">
+                            <div class="product-label">Corner Sofa</div>
+                        </div>
+                        <div class="product-item" draggable="true">
+                            <img src="./images/s5.jpg" alt="Sofa 5">
+                            <div class="product-label">Loveseat</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="category-button" onclick="toggleCategory('chairs')">Chairs ▼</button>
+                <div id="chairs" class="category-content">
+                    <div class="product-grid">
+                        <div class="product-item" draggable="true">
+                            <img src="./images/chair1.png" alt="Chair 1">
+                            <div class="product-label">Dining Chair</div>
+                        </div>
+                        <div class="product-item" draggable="true">
+                            <img src="./images/chair2.png" alt="Chair 2">
+                            <div class="product-label">Accent Chair</div>
+                        </div>
+                        <div class="product-item" draggable="true">
+                            <img src="./images/chair3.png" alt="Chair 3">
+                            <div class="product-label">Arm Chair</div>
+                        </div>
+                        <div class="product-item" draggable="true">
+                            <img src="./images/chair4.png" alt="Chair 4">
+                            <div class="product-label">Office Chair</div>
+                        </div>
+                        <div class="product-item" draggable="true">
+                            <img src="./images/chair5.jpg" alt="Chair 5">
+                            <div class="product-label">Rocking Chair</div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="category-button" onclick="toggleCategory('decor')">Decor ▼</button>
+                <div id="decor" class="category-content">
+                    <div class="product-grid">
+                        <div class="product-item" draggable="true">
+                            <img src="./images/d1.jpg" alt="Decor 1">
+                            <div class="product-label">Wall Art</div>
+                        </div>
+                        <div class="product-item" draggable="true">
+                            <img src="./images/d2 (3).jpg" alt="Decor 2">
+                            <div class="product-label">Table Lamp</div>
+                        </div>
+                        <div class="product-item" draggable="true">
+                            <img src="./images/d3.jpg" alt="Decor 3">
+                            <div class="product-label">Vase</div>
+                        </div>
+                        <div class="product-item" draggable="true">
+                            <img src="./images/d4.jpg" alt="Decor 4">
+                            <div class="product-label">Mirror</div>
+                        </div>
+                        <div class="product-item" draggable="true">
+                            <img src="./images/d5.jpg" alt="Decor 5">
+                            <div class="product-label">Plant</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="room-view" id="room-view">
+                <img id="room-image" style="display: none;">
+            </div>
+
+            <div class="controls-panel">
+                <h3>Controls</h3>
+                <div class="controls-grid">
+                    <button class="control-button" onclick="zoomIn()">Zoom In</button>
+                    <button class="control-button" onclick="zoomOut()">Zoom Out</button>
+                    <button class="control-button" onclick="resetZoom()">Reset Zoom</button>
+                    <button class="control-button" onclick="rotateLeft()">Rotate Left</button>
+                    <button class="control-button" onclick="rotateRight()">Rotate Right</button>
+                    <button class="control-button" onclick="resetRotation()">Reset Rotation</button>
+                    <button class="control-button delete-button" onclick="deleteSelected()">
+                        <i class="fas fa-trash-alt"></i>Delete Selected Item
+                    </button>
+                    <button class="control-button download-button" onclick="downloadImage()">
+                        <i class="fas fa-download"></i>Download Designed Room
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let draggedItem = null;
+        let currentX = 0;
+        let currentY = 0;
+        let initialX = 0;
+        let initialY = 0;
+        let xOffset = 0;
+        let yOffset = 0;
+        let active = false;
+        let isDragging = false;
+        let selectedItem = null;
+        let currentZoom = 1;
+        let currentRotation = 0;
+
+        function uploadRoom() {
+            const input = document.getElementById('room-upload');
+            const file = input.files[0];
+            
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const roomImage = document.getElementById('room-image');
+                    roomImage.src = e.target.result;
+                    roomImage.style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Add event listener for placed furniture
+        document.getElementById('room-view').addEventListener('mousedown', (e) => {
+            const clickedProduct = e.target.closest('.draggable-product');
+            if (clickedProduct && !isDragging) {
+                isDragging = true;
+                e.preventDefault();
+                startDragging(e, clickedProduct);
+            }
+        });
+
+        document.querySelectorAll('.product-item').forEach(item => {
+            item.addEventListener('mousedown', (e) => {
+                if (isDragging) return;
+                isDragging = true;
+                
+                e.preventDefault();
+                const roomView = document.getElementById('room-view');
+                const rect = roomView.getBoundingClientRect();
+                
+                const newProduct = document.createElement('div');
+                newProduct.className = 'draggable-product';
+                newProduct.innerHTML = item.innerHTML;
+                
+                const x = e.clientX - rect.left - 50;
+                const y = e.clientY - rect.top - 50;
+                newProduct.style.left = x + 'px';
+                newProduct.style.top = y + 'px';
+                
+                roomView.appendChild(newProduct);
+                draggedItem = newProduct;
+                
+                startDragging(e, newProduct);
+            });
+        });
+
+        function startDragging(e, item = null) {
+            draggedItem = item || e.target.closest('.draggable-product');
+            const rect = draggedItem.getBoundingClientRect();
+            
+            // Calculate offset relative to the dragged item
+            const dragRect = draggedItem.getBoundingClientRect();
+            initialX = e.clientX - dragRect.left;
+            initialY = e.clientY - dragRect.top;
+            
+            active = true;
+            
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', stopDragging);
+        }
+
+        function drag(e) {
+            if (active && draggedItem) {
+                e.preventDefault();
+                
+                const roomView = document.getElementById('room-view');
+                const rect = roomView.getBoundingClientRect();
+                
+                let newX = e.clientX - rect.left - initialX;
+                let newY = e.clientY - rect.top - initialY;
+                
+                // Keep furniture within room boundaries
+                newX = Math.max(0, Math.min(newX, rect.width - draggedItem.offsetWidth));
+                newY = Math.max(0, Math.min(newY, rect.height - draggedItem.offsetHeight));
+                
+                draggedItem.style.left = newX + 'px';
+                draggedItem.style.top = newY + 'px';
+            }
+        }
+
+        function stopDragging() {
+            active = false;
+            isDragging = false;
+            // Don't reset draggedItem as it might be the selected item
+            document.removeEventListener('mousemove', drag);
+            document.removeEventListener('mouseup', stopDragging);
+        }
+
+        function toggleCategory(categoryId) {
+            const content = document.getElementById(categoryId);
+            content.classList.toggle('active');
+            
+            const button = content.previousElementSibling;
+            if (content.classList.contains('active')) {
+                button.innerHTML = button.innerHTML.replace('▼', '▲');
+            } else {
+                button.innerHTML = button.innerHTML.replace('▲', '▼');
+            }
+        }
+
+        // Select item when clicked
+        document.getElementById('room-view').addEventListener('click', (e) => {
+            const clickedProduct = e.target.closest('.draggable-product');
+            if (clickedProduct) {
+                // Remove highlight from previously selected item
+                if (selectedItem) {
+                    selectedItem.style.outline = 'none';
+                }
+                // Highlight new selection
+                clickedProduct.style.outline = '2px solid #2c3e50';
+                selectedItem = clickedProduct;
+            }
+        });
+
+        function zoomIn() {
+            if (selectedItem) {
+                currentZoom = Math.min(currentZoom + 0.1, 2);
+                updateTransform();
+            }
+        }
+
+        function zoomOut() {
+            if (selectedItem) {
+                currentZoom = Math.max(currentZoom - 0.1, 0.5);
+                updateTransform();
+            }
+        }
+
+        function resetZoom() {
+            if (selectedItem) {
+                currentZoom = 1;
+                updateTransform();
+            }
+        }
+
+        function rotateLeft() {
+            if (selectedItem) {
+                currentRotation -= 45;
+                updateTransform();
+            }
+        }
+
+        function rotateRight() {
+            if (selectedItem) {
+                currentRotation += 45;
+                updateTransform();
+            }
+        }
+
+        function resetRotation() {
+            if (selectedItem) {
+                currentRotation = 0;
+                updateTransform();
+            }
+        }
+
+        function updateTransform() {
+            if (selectedItem) {
+                selectedItem.style.transform = `scale(${currentZoom}) rotate(${currentRotation}deg)`;
+            }
+        }
+
+        function deleteSelected() {
+            if (selectedItem) {
+                selectedItem.remove();
+                selectedItem = null;
+                currentZoom = 1;
+                currentRotation = 0;
+            }
+        }
+
+        // Add html2canvas library in the head section
+        function addHTML2Canvas() {
+            const script = document.createElement('script');
+            script.src = 'https://html2canvas.hertzen.com/dist/html2canvas.min.js';
+            document.head.appendChild(script);
+            return new Promise((resolve) => {
+                script.onload = resolve;
+            });
+        }
+
+        async function downloadImage() {
+            if (typeof html2canvas === 'undefined') {
+                await addHTML2Canvas();
+            }
+
+            const roomView = document.getElementById('room-view');
+            
+            // Show loading state
+            const downloadButton = document.querySelector('.download-button');
+            const originalText = downloadButton.innerHTML;
+            downloadButton.innerHTML = 'Generating Image...';
+            downloadButton.disabled = true;
+
+            try {
+                const canvas = await html2canvas(roomView, {
+                    useCORS: true,
+                    backgroundColor: null,
+                    scale: 2, // Higher quality
+                });
+
+                // Create download link
+                const link = document.createElement('a');
+                link.download = 'designed-room.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+
+            } catch (error) {
+                console.error('Error generating image:', error);
+                alert('Failed to generate image. Please try again.');
+            }
+
+            // Restore button state
+            downloadButton.innerHTML = originalText;
+            downloadButton.disabled = false;
+        }
+    </script>
+</body>
+</html>

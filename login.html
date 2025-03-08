@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Form</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="login-container">
+        <h2>Login</h2>
+        <form action="login.php" method="POST">
+            <input type="email" name="email" placeholder="Email" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <button type="submit">Login</button>
+        </form>
+        <p>Or</p>
+        <div id="google-signin-button"></div>
+    </div>
+
+    <!-- Google API -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script>
+        function handleCredentialResponse(response) {
+            const responsePayload = decodeJwtResponse(response.credential);
+            console.log("ID: " + responsePayload.sub);
+            console.log("Email: " + responsePayload.email);
+
+            // Send data to PHP for verification
+            fetch("google_auth.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    id: responsePayload.sub,
+                    email: responsePayload.email,
+                    name: responsePayload.name
+                })
+            }).then(response => response.json())
+              .then(data => {
+                  if (data.success) {
+                      window.location.href = "dashboard.php"; // Redirect to dashboard
+                  } else {
+                      alert("Google login failed!");
+                  }
+              });
+        }
+
+        function decodeJwtResponse(token) {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            return JSON.parse(jsonPayload);
+        }
+    </script>
+    <script>
+        window.onload = function () {
+            google.accounts.id.initialize({
+                client_id: "584117908183-6loopo0pm7j3k2uoic90rtff6ci17a25.apps.googleusercontent.com",
+                callback: handleCredentialResponse
+            });
+            google.accounts.id.renderButton(
+                document.getElementById("google-signin-button"),
+                { theme: "outline", size: "large" }
+            );
+        };
+    </script>
+</body>
+</html>

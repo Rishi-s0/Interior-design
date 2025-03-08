@@ -1,0 +1,154 @@
+/* Global styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Navbar top */
+.navbar-top {
+  width: 100%;
+  height: 10vh;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.social-link i img {
+  margin-left: 10px;
+  transition: 0.5s ease;
+  cursor: pointer;
+}
+
+.social-link i img:hover {
+  background-color: rgba(238, 224, 208, 0.5);
+}
+
+.logo h3 {
+  font-weight: bold;
+}
+
+.icons i img {
+  margin-left: 10px;
+  cursor: pointer;
+}
+.login-btn {
+  margin-left: 10px;
+}
+
+.login-btn button {
+  padding: 5px 15px;
+  font-size: 16px;
+  background-color: hwb(128 18% 52%);
+  border: none;
+  color: rgb(255, 255, 255);
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.login-btn button:hover {
+  background-color: #0056b3;
+}
+
+/* Navbar */
+#navbar-color {
+  background-color: rgba(238, 224, 208, 0.8);
+}
+
+.nav-link {
+  margin-left: 30px;
+  font-weight: bold;
+  color: black;
+  transition: 0.5s ease;
+}
+
+.nav-link:hover {
+  color: green;
+}
+
+/* Main content */
+.main-content {
+  width: 100%;
+  height: 90vh;
+  background-image: url(./img/background.png);
+  background-size: cover;
+  background-position: center;
+}
+
+.content h1 {
+  font-size: 50px;
+}
+
+#btn1 button {
+  width: 150px;
+  height: 32px;
+  background: transparent;
+  border: 1px solid black;
+  letter-spacing: 3px;
+  font-weight: bold;
+  transition: 0.5s ease;
+  cursor: pointer;
+}
+
+#btn1 button:hover {
+  background-color: green;
+}
+
+/* Card styles */
+#tpc {
+  box-shadow: 0 0 5px black;
+  transition: 0.5s ease;
+  cursor: pointer;
+}
+
+#tpc:hover {
+  transform: translateY(-10px);
+}
+
+#btn2 button {
+  width: 100px;
+  height: 30px;
+  background: transparent;
+  border: 1px solid black;
+  transition: 0.5s ease;
+  cursor: pointer;
+}
+
+#btn2 button:hover {
+  background-color: rgb(238, 224, 208);
+}
+
+/* Contact Section */
+#btn3 button {
+  width: 150px;
+  height: 30px;
+  background: transparent;
+  border: 1px solid black;
+  transition: 0.5s ease;
+  cursor: pointer;
+}
+
+#btn3 button:hover {
+  background-color: rgb(238, 224, 208);
+}
+
+/* WhatsApp Floating Button */
+.whatsapp-float {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  cursor: pointer;
+}
+
+.whatsapp-float img {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease-in-out;
+}
+
+.whatsapp-float img:hover {
+  transform: scale(1.1);
+}
